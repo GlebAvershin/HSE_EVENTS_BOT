@@ -19,6 +19,7 @@ from src.database.models import (
     Notification,
     UserSettings,
     EventSource,
+    AdminUser,
 )
 
 # this is the Alembic Config object

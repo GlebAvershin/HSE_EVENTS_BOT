@@ -6,6 +6,9 @@ from src.database.models.attendance import EventAttendance
 from src.database.models.notification import Notification
 from src.database.models.user_settings import UserSettings
 from src.database.models.event_source import EventSource
+from src.database.models.admin_user import AdminUser
+from src.database.models.review import EventReview
+from src.database.models.comment import EventComment
 
 __all__ = [
     "User",
@@ -15,4 +18,7 @@ __all__ = [
     "Notification",
     "UserSettings",
     "EventSource",
+    "AdminUser",
+    "EventReview",
+    "EventComment",
 ]

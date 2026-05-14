@@ -19,6 +19,8 @@ class UserSettings(Base):
     notify_new_events: Mapped[bool] = mapped_column(Boolean, default=True)
     notify_friend_going: Mapped[bool] = mapped_column(Boolean, default=True)
     notify_event_reminder: Mapped[bool] = mapped_column(Boolean, default=True)
+    hide_attendance: Mapped[bool] = mapped_column(Boolean, default=False)
+    hide_from_search: Mapped[bool] = mapped_column(Boolean, default=False)
     preferred_categories: Mapped[list[str] | None] = mapped_column(
         ARRAY(String), default=["it", "entertainment"]
     )

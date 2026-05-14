@@ -33,6 +33,9 @@ class Settings(BaseSettings):
     API_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
+    # Admin Panel
+    ADMIN_PANEL_ORIGIN: str = "*"
+
     # Parsing
     PARSE_INTERVAL_HOURS: int = 6
 

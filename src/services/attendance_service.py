@@ -122,6 +122,7 @@ class AttendanceService:
     ) -> list[User]:
         """
         Получить список друзей, идущих на событие.
+        Исключает пользователей, скрывших свои посещения.
 
         Args:
             event_id: ID события
@@ -130,15 +131,42 @@ class AttendanceService:
         Returns:
             list[User]: Список друзей
         """
-        return await self.attendance_repo.get_friends_attending(
-            event_id, user_id, status="going"
+        from sqlalchemy import select, and_
+        from src.database.models.attendance import EventAttendance
+        from src.database.models.friendship import Friendship
+        from src.database.models.user_settings import UserSettings
+
+        query = (
+            select(User)
+            .join(EventAttendance, EventAttendance.user_id == User.id)
+            .join(
+                Friendship,
+                and_(
+                    Friendship.friend_id == User.id,
+                    Friendship.user_id == user_id,
+                    Friendship.status == "accepted",
+                ),
+            )
+            .outerjoin(UserSettings, UserSettings.user_id == User.id)
+            .where(
+                and_(
+                    EventAttendance.event_id == event_id,
+                    EventAttendance.status == "going",
+                    (UserSettings.hide_attendance == False) | (UserSettings.hide_attendance.is_(None)),
+                )
+            )
+            .order_by(User.first_name)
         )
+
+        result = await self.session.execute(query)
+        return list(result.scalars().all())
 
     async def get_friends_maybe(
         self, event_id: int, user_id: int
     ) -> list[User]:
         """
         Получить список друзей, которые возможно пойдут.
+        Исключает пользователей, скрывших свои посещения.
 
         Args:
             event_id: ID события
@@ -147,9 +175,35 @@ class AttendanceService:
         Returns:
             list[User]: Список друзей
         """
-        return await self.attendance_repo.get_friends_attending(
-            event_id, user_id, status="maybe"
+        from sqlalchemy import select, and_
+        from src.database.models.attendance import EventAttendance
+        from src.database.models.friendship import Friendship
+        from src.database.models.user_settings import UserSettings
+
+        query = (
+            select(User)
+            .join(EventAttendance, EventAttendance.user_id == User.id)
+            .join(
+                Friendship,
+                and_(
+                    Friendship.friend_id == User.id,
+                    Friendship.user_id == user_id,
+                    Friendship.status == "accepted",
+                ),
+            )
+            .outerjoin(UserSettings, UserSettings.user_id == User.id)
+            .where(
+                and_(
+                    EventAttendance.event_id == event_id,
+                    EventAttendance.status == "maybe",
+                    (UserSettings.hide_attendance == False) | (UserSettings.hide_attendance.is_(None)),
+                )
+            )
+            .order_by(User.first_name)
         )
+
+        result = await self.session.execute(query)
+        return list(result.scalars().all())
 
     def format_friends_list(self, friends: list[User]) -> str:
         """

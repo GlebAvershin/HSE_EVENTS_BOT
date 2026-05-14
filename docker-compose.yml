@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:15-alpine
@@ -48,6 +46,15 @@ services:
     volumes:
       - ./src:/app/src
       - ./alembic:/app/alembic
+      - ./tests:/app/tests
+      - ./scripts:/app/scripts
+      - ./pyproject.toml:/app/pyproject.toml
+    healthcheck:
+      test: ["CMD", "python", "-m", "scripts.healthcheck"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
     restart: unless-stopped
     networks:
       - nn_events_network
@@ -68,6 +75,21 @@ services:
       - "${API_PORT:-8000}:8000"
     volumes:
       - ./src:/app/src
+    restart: unless-stopped
+    networks:
+      - nn_events_network
+
+  admin-panel:
+    build:
+      context: .
+      dockerfile: docker/admin-panel.Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+    container_name: nn_events_admin_panel
+    depends_on:
+      - api
+    ports:
+      - "${ADMIN_PANEL_PORT:-3000}:80"
     restart: unless-stopped
     networks:
       - nn_events_network

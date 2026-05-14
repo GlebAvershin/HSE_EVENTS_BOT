@@ -150,6 +150,8 @@ class UserRepository:
             notify_new_events=True,
             notify_friend_going=True,
             notify_event_reminder=True,
+            hide_attendance=False,
+            hide_from_search=False,
             preferred_categories=["it", "entertainment"],
         )
         self.session.add(settings)

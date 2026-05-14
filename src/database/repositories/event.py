@@ -1,10 +1,11 @@
 """Репозиторий для работы с событиями."""
 from datetime import datetime
 
-from sqlalchemy import select, and_, or_
+from sqlalchemy import select, and_, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.models.event import Event
+from src.database.models.attendance import EventAttendance
 
 
 class EventRepository:
@@ -196,8 +197,6 @@ class EventRepository:
         Returns:
             int: Количество событий
         """
-        from sqlalchemy import func
-
         query = select(func.count(Event.id)).where(
             and_(Event.is_published == True, Event.date_start >= datetime.utcnow())
         )
@@ -238,6 +237,52 @@ class EventRepository:
             query = query.where(Event.category == category)
 
         query = query.order_by(Event.date_start)
+
+        result = await self.session.execute(query)
+        return list(result.scalars().all())
+
+    async def get_popular_events(
+        self,
+        category: str | None = None,
+        limit: int = 10,
+        offset: int = 0,
+    ) -> list[Event]:
+        """
+        Получить популярные события, отсортированные по количеству участников (going).
+
+        Args:
+            category: Категория событий
+            limit: Максимальное количество событий
+            offset: Смещение для пагинации
+
+        Returns:
+            list[Event]: Список событий, отсортированных по популярности
+        """
+        going_count = func.count(EventAttendance.id).label("going_count")
+
+        query = (
+            select(Event)
+            .outerjoin(
+                EventAttendance,
+                and_(
+                    EventAttendance.event_id == Event.id,
+                    EventAttendance.status == "going",
+                ),
+            )
+            .where(
+                and_(
+                    Event.is_published == True,
+                    Event.date_start >= datetime.utcnow(),
+                )
+            )
+            .group_by(Event.id)
+            .order_by(going_count.desc(), Event.date_start)
+            .limit(limit)
+            .offset(offset)
+        )
+
+        if category:
+            query = query.where(Event.category == category)
 
         result = await self.session.execute(query)
         return list(result.scalars().all())

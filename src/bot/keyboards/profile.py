@@ -38,6 +38,8 @@ def get_settings_keyboard(settings) -> InlineKeyboardMarkup:
     friend_emoji = "✅" if settings.notify_friend_going else "❌"
     events_emoji = "✅" if settings.notify_new_events else "❌"
     reminder_emoji = "✅" if settings.notify_event_reminder else "❌"
+    hide_attendance_emoji = "✅" if settings.hide_attendance else "❌"
+    hide_from_search_emoji = "✅" if settings.hide_from_search else "❌"
     
     buttons = [
         [
@@ -56,6 +58,18 @@ def get_settings_keyboard(settings) -> InlineKeyboardMarkup:
             InlineKeyboardButton(
                 text=f"{reminder_emoji} Напоминания о событиях",
                 callback_data="toggle_event_reminder"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text=f"{hide_attendance_emoji} 👁 Скрыть посещения",
+                callback_data="toggle_hide_attendance"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text=f"{hide_from_search_emoji} 🔍 Скрыть из поиска",
+                callback_data="toggle_hide_from_search"
             )
         ],
         [

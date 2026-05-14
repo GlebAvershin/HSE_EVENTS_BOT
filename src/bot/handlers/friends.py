@@ -226,6 +226,22 @@ async def add_friend_process(message: Message, state: FSMContext, session: Async
         await state.clear()
         return
 
+    # Проверяем, не скрыт ли пользователь из поиска
+    from sqlalchemy import select
+    from src.database.models.user import User as UserModel
+    from src.database.models.user_settings import UserSettings
+
+    target_user = await user_repo.get_by_username(username)
+    if target_user:
+        result = await session.execute(
+            select(UserSettings).where(UserSettings.user_id == target_user.id)
+        )
+        target_settings = result.scalar_one_or_none()
+        if target_settings and target_settings.hide_from_search:
+            await message.answer("❌ Пользователь не найден")
+            await state.clear()
+            return
+
     # Отправляем запрос
     success, msg = await friendship_service.send_friend_request(db_user.id, username)
 

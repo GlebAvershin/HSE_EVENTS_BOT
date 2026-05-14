@@ -61,6 +61,9 @@ async def cmd_profile(message: Message, user: User, session: AsyncSession):
         text += f"• Друзья на событиях: {'✅' if settings.notify_friend_going else '❌'}\n"
         text += f"• Новые события: {'✅' if settings.notify_new_events else '❌'}\n"
         text += f"• Напоминания: {'✅' if settings.notify_event_reminder else '❌'}\n"
+        text += f"\n🔒 <b>Приватность:</b>\n"
+        text += f"• Скрыть посещения: {'✅' if settings.hide_attendance else '❌'}\n"
+        text += f"• Скрыть из поиска: {'✅' if settings.hide_from_search else '❌'}\n"
     
     await message.answer(text, reply_markup=get_profile_menu_keyboard())
 
@@ -134,6 +137,14 @@ async def toggle_setting(callback: CallbackQuery, user: User, session: AsyncSess
         settings.notify_event_reminder = not settings.notify_event_reminder
         status = "включены" if settings.notify_event_reminder else "выключены"
         message = f"🔔 Напоминания о событиях {status}"
+    elif setting_name == "hide_attendance":
+        settings.hide_attendance = not settings.hide_attendance
+        status = "включено" if settings.hide_attendance else "выключено"
+        message = f"🔒 Скрытие посещений {status}"
+    elif setting_name == "hide_from_search":
+        settings.hide_from_search = not settings.hide_from_search
+        status = "включено" if settings.hide_from_search else "выключено"
+        message = f"🔒 Скрытие из поиска {status}"
     else:
         await callback.answer("❌ Неизвестная настройка", show_alert=True)
         return

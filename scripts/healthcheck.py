@@ -9,7 +9,7 @@ import sys
 import time
 
 HEARTBEAT_FILE = "/tmp/bot_heartbeat"
-MAX_AGE_SECONDS = 120  # Если heartbeat старше 2 минут — unhealthy
+MAX_AGE_SECONDS = 90  # Если heartbeat старше 90 секунд — unhealthy
 
 
 def check():

@@ -7,6 +7,7 @@ import time
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
+from aiogram.fsm.storage.redis import RedisStorage
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from src.config import settings
@@ -19,7 +20,7 @@ logger = setup_logger(__name__)
 
 # Глобальный timestamp последнего успешного update от Telegram
 _last_successful_poll = time.time()
-_WATCHDOG_TIMEOUT = 300  # 5 минут без связи = перезапуск
+_WATCHDOG_TIMEOUT = 120  # 2 минуты без связи = перезапуск
 
 
 async def on_startup(bot: Bot):
@@ -89,8 +90,9 @@ async def main():
         default=DefaultBotProperties(parse_mode=ParseMode.HTML),
     )
 
-    # Инициализация диспетчера
-    dp = Dispatcher()
+    # Инициализация диспетчера с Redis-хранилищем FSM-состояний
+    storage = RedisStorage.from_url(settings.redis_url)
+    dp = Dispatcher(storage=storage)
 
     # Middleware для передачи сессии БД
     @dp.update.middleware()
@@ -139,7 +141,11 @@ async def main():
 
     try:
         logger.info("Запуск polling...")
-        await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
+        await dp.start_polling(
+            bot,
+            allowed_updates=dp.resolve_used_update_types(),
+            polling_timeout=20,  # Короткий timeout для быстрого обнаружения разрыва
+        )
     except Exception as e:
         logger.error(f"Ошибка при запуске бота: {e}")
         raise

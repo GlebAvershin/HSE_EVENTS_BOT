@@ -51,7 +51,7 @@ services:
       - ./pyproject.toml:/app/pyproject.toml
     healthcheck:
       test: ["CMD", "python", "-m", "scripts.healthcheck"]
-      interval: 60s
+      interval: 30s
       timeout: 10s
       retries: 3
       start_period: 45s

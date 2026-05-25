@@ -141,17 +141,14 @@ class CalendarService:
             events_by_date[date_key].append(event)
 
         # Форматируем по дням
+        now = datetime.now()
+        today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        tomorrow = today + timedelta(days=1)
+        weekdays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
+
         for date_key in sorted(events_by_date.keys()):
             date_obj = datetime.strptime(date_key, "%Y-%m-%d")
-            
-            # Определяем день недели
-            weekdays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
             weekday = weekdays[date_obj.weekday()]
-            
-            # Определяем относительную дату
-            now = datetime.now()
-            today = now.replace(hour=0, minute=0, second=0, microsecond=0)
-            tomorrow = today + timedelta(days=1)
             
             if date_obj.date() == today.date():
                 date_label = "Сегодня"
@@ -162,7 +159,6 @@ class CalendarService:
             
             text += f"📅 <b>{date_label} ({weekday})</b>\n"
             
-            # События этого дня
             day_events = events_by_date[date_key]
             for event in day_events:
                 time_str = event.date_start.strftime("%H:%M")

@@ -30,26 +30,34 @@ def get_calendar_menu_keyboard() -> ReplyKeyboardMarkup:
 
 
 def get_calendar_period_keyboard(
-    events: list, period: str
+    events: list, period: str, page: int = 1, page_size: int = 8
 ) -> InlineKeyboardMarkup:
     """
-    Получить клавиатуру для просмотра событий календаря.
+    Получить клавиатуру для просмотра событий календаря с пагинацией.
 
     Args:
-        events: Список событий
+        events: Полный список событий
         period: Период (today, tomorrow, week, month)
+        page: Текущая страница
+        page_size: Событий на странице
 
     Returns:
         InlineKeyboardMarkup: Inline клавиатура
     """
     buttons = []
+    
+    total = len(events)
+    total_pages = max(1, (total + page_size - 1) // page_size)
+    start = (page - 1) * page_size
+    end = start + page_size
+    page_events = events[start:end]
 
-    # Кнопки событий (максимум 5)
-    for event in events[:5]:
+    # Кнопки событий
+    for event in page_events:
         date_str = event.date_start.strftime("%d.%m %H:%M")
-        button_text = f"{date_str} - {event.title[:25]}"
-        if len(event.title) > 25:
-            button_text += "..."
+        category_emoji = "💻" if event.category == "it" else "🎉"
+        title_short = event.title[:30] + ("..." if len(event.title) > 30 else "")
+        button_text = f"{category_emoji} {date_str} — {title_short}"
 
         buttons.append([
             InlineKeyboardButton(
@@ -58,13 +66,23 @@ def get_calendar_period_keyboard(
             )
         ])
 
-    # Если событий больше 5, добавляем кнопку "Показать все"
-    if len(events) > 5:
-        buttons.append([
-            InlineKeyboardButton(
-                text=f"📋 Показать все ({len(events)})",
-                callback_data=f"calendar_all:{period}"
-            )
-        ])
+    # Пагинация
+    if total_pages > 1:
+        nav_row = []
+        if page > 1:
+            nav_row.append(InlineKeyboardButton(
+                text="◀️",
+                callback_data=f"calendar_page:{period}:{page - 1}"
+            ))
+        nav_row.append(InlineKeyboardButton(
+            text=f"{page}/{total_pages}",
+            callback_data="noop"
+        ))
+        if page < total_pages:
+            nav_row.append(InlineKeyboardButton(
+                text="▶️",
+                callback_data=f"calendar_page:{period}:{page + 1}"
+            ))
+        buttons.append(nav_row)
 
     return InlineKeyboardMarkup(inline_keyboard=buttons)

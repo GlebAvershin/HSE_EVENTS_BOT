@@ -51,16 +51,23 @@ export default function Layout() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-900">
-      <aside className="w-64 shrink-0 bg-white border-r border-slate-200 flex flex-col sticky top-0 h-screen">
+    <div className="flex min-h-screen text-slate-900">
+      {/* Фоновые декоративные элементы */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-brand-400/20 to-purple-400/20 rounded-full blur-3xl animate-float" />
+        <div className="absolute top-1/2 -left-20 w-72 h-72 bg-gradient-to-br from-emerald-400/15 to-cyan-400/15 rounded-full blur-3xl animate-float-delayed" />
+        <div className="absolute -bottom-20 right-1/3 w-80 h-80 bg-gradient-to-br from-amber-400/10 to-rose-400/10 rounded-full blur-3xl animate-float" />
+      </div>
+
+      <aside className="w-64 shrink-0 flex flex-col sticky top-0 h-screen glass-dark">
         <div className="px-5 py-5 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white flex items-center justify-center shadow-[0_4px_12px_-2px_rgba(99,102,241,0.4)]">
-            <IconShield width={18} height={18} />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-400 via-brand-500 to-purple-600 text-white flex items-center justify-center shadow-[0_4px_16px_-2px_rgba(99,102,241,0.5)] animate-gradient">
+            <IconShield width={20} height={20} />
           </div>
           <div className="leading-tight">
-            <div className="text-sm font-semibold text-slate-900">NN Events</div>
-            <div className="text-[11px] text-slate-500 uppercase tracking-wider">
-              Admin
+            <div className="text-sm font-bold text-white">NN Events</div>
+            <div className="text-[11px] text-brand-300 uppercase tracking-wider font-medium">
+              Admin Panel
             </div>
           </div>
         </div>
@@ -76,10 +83,10 @@ export default function Layout() {
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  `group flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium mb-1 transition-all ${
+                  `group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium mb-1 transition-all ${
                     isActive
-                      ? 'bg-brand-50 text-brand-700'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                      ? 'bg-gradient-to-r from-brand-500/20 to-purple-500/10 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]'
+                      : 'text-slate-400 hover:bg-white/5 hover:text-white'
                   }`
                 }
               >
@@ -90,13 +97,13 @@ export default function Layout() {
                       height={18}
                       className={
                         isActive
-                          ? 'text-brand-600'
-                          : 'text-slate-400 group-hover:text-slate-600'
+                          ? 'text-brand-300'
+                          : 'text-slate-500 group-hover:text-slate-300'
                       }
                     />
                     <span>{item.label}</span>
                     {isActive && (
-                      <span className="ml-auto w-1.5 h-1.5 rounded-full bg-brand-500" />
+                      <span className="ml-auto w-2 h-2 rounded-full bg-brand-400 animate-pulse-dot" />
                     )}
                   </>
                 )}
@@ -105,22 +112,22 @@ export default function Layout() {
           })}
         </nav>
 
-        <div className="p-3 border-t border-slate-100">
+        <div className="p-3 border-t border-white/10">
           <div className="flex items-center gap-3 px-2 py-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 text-slate-700 flex items-center justify-center text-sm font-semibold">
-              A
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-400 to-purple-500 text-white flex items-center justify-center text-sm font-bold shadow-md">
+              C
             </div>
             <div className="flex-1 min-w-0 leading-tight">
-              <div className="text-sm font-medium text-slate-900 truncate">
-                Администратор
+              <div className="text-sm font-medium text-white truncate">
+                CEOGlebik
               </div>
-              <div className="text-xs text-slate-500 truncate">
+              <div className="text-xs text-slate-400 truncate">
                 Полный доступ
               </div>
             </div>
             <button
               onClick={handleLogout}
-              className="text-slate-400 hover:text-rose-600 hover:bg-rose-50 p-2 rounded-lg transition-colors focus-ring"
+              className="text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 p-2 rounded-lg transition-colors focus-ring"
               title="Выйти"
               aria-label="Выйти"
             >
@@ -131,9 +138,9 @@ export default function Layout() {
       </aside>
 
       <main className="flex-1 min-w-0 flex flex-col">
-        <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-slate-200/80">
+        <header className="sticky top-0 z-10 glass border-b border-white/40">
           <div className="px-8 py-5">
-            <h1 className="text-xl font-semibold text-slate-900 tracking-tight">
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
               {meta.title}
             </h1>
             {meta.subtitle && (

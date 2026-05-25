@@ -9,6 +9,11 @@ from src.parsers.kudago_parser import KudaGoParser
 from src.parsers.habr_parser import HabrEventsParser
 from src.parsers.kassir_parser import KassirParser
 from src.parsers.qtickets_parser import QTicketsParser
+from src.parsers.networkly_parser import NetworklyParser
+from src.parsers.allevents_parser import AllEventsParser
+from src.parsers.gorodzovet_parser import GorodzovetParser
+from src.parsers.topacademy_parser import TopAcademyParser
+from src.parsers.timepad_parser import TimepadParser
 from src.database.repositories.event import EventRepository
 
 
@@ -34,11 +39,16 @@ class ParserManager:
             MiloParser(),         # HTML (windows-1251), концерты НН
             KudaGoParser(),       # REST API, все категории НН (без авторизации)
             HabrEventsParser(),   # HTML, IT-конференции (НН + онлайн)
+            NetworklyParser(),    # HTML, IT-мероприятия НН
+            AllEventsParser(),    # HTML, IT/digital НН
+            GorodzovetParser(),   # HTML, IT-афиша НН
+            TopAcademyParser(),   # HTML (SSR), IT-академия
         ]
         
         self.browser_parsers = [
             KassirParser(),        # SPA, концерты/шоу (30+ событий)
             QTicketsParser(),      # SPA, развлечения (18+ событий)
+            TimepadParser(),       # SPA, IT-мероприятия НН
         ]
     
     async def parse_all(self, include_browser: bool = True) -> dict:

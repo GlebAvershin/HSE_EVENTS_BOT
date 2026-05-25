@@ -21,14 +21,26 @@ from src.parsers.base import BaseParser, EventData
 # Маппинг категорий KudaGo -> наши категории
 KUDAGO_IT_CATEGORIES = {
     "business-events",
+    "education",  # часто содержит IT-курсы и лекции
+    "science",    # научно-технические события
 }
 
 KUDAGO_ENTERTAINMENT_CATEGORIES = {
     "concert", "theater", "party", "exhibition", "festival",
     "cinema", "show", "stand-up", "quest", "sport",
     "kids", "holiday", "other", "entertainment",
-    "education", "science",
 }
+
+# Ключевые слова в названии/описании для определения IT
+KUDAGO_IT_KEYWORDS = [
+    "it", "айти", "программирование", "разработка",
+    "хакатон", "митап", "meetup", "конференция",
+    "tech", "технологии", "digital", "диджитал",
+    "python", "javascript", "веб", "web",
+    "data science", "машинное обучение", "ai",
+    "devops", "backend", "frontend", "fullstack",
+    "kubernetes", "docker", "api", "блокчейн",
+]
 
 
 class KudaGoParser(BaseParser):
@@ -121,7 +133,11 @@ class KudaGoParser(BaseParser):
         
         # Категория
         categories = item.get("categories", [])
-        category = self._determine_category(categories)
+        category = self._determine_category(
+            categories,
+            title=title,
+            description=item.get("description", ""),
+        )
         
         # URL
         site_url = item.get("site_url", "")
@@ -196,9 +212,22 @@ class KudaGoParser(BaseParser):
         
         return None
     
-    def _determine_category(self, categories: list) -> str:
+    def _determine_category(self, categories: list, title: str = "", description: str = "") -> str:
         """Определить категорию события."""
+        # 1. Проверяем категории KudaGo
         for cat in categories:
             if cat in KUDAGO_IT_CATEGORIES:
-                return "it"
+                # Education/science — проверяем что это про IT
+                if cat in ("education", "science"):
+                    text = f"{title} {description}".lower()
+                    if any(kw in text for kw in KUDAGO_IT_KEYWORDS):
+                        return "it"
+                else:
+                    return "it"
+        
+        # 2. Проверяем ключевые слова в названии
+        text = f"{title} {description}".lower()
+        if any(kw in text for kw in KUDAGO_IT_KEYWORDS):
+            return "it"
+        
         return "entertainment"

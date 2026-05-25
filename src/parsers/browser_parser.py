@@ -36,6 +36,7 @@ class BrowserParser(BaseParser):
                     "--disable-dev-shm-usage",
                     "--disable-gpu",
                     "--disable-extensions",
+                    "--disable-blink-features=AutomationControlled",
                 ]
             )
         except ImportError:
@@ -71,11 +72,16 @@ class BrowserParser(BaseParser):
             user_agent=(
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                 "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/120.0.0.0 Safari/537.36"
-            )
+                "Chrome/125.0.0.0 Safari/537.36"
+            ),
+            viewport={"width": 1920, "height": 1080},
         )
         
         try:
+            # Скрываем признаки автоматизации
+            await page.add_init_script("""
+                Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
+            """)
             await page.goto(url, timeout=self.PAGE_LOAD_TIMEOUT, wait_until="domcontentloaded")
             
             if wait_selector:

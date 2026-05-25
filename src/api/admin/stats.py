@@ -77,7 +77,7 @@ async def get_stats(
         select(func.count(Event.id)).where(Event.is_published == True)
     ) or 0
     events_pending = await session.scalar(
-        select(func.count(Event.id)).where(Event.is_moderated == False)
+        select(func.count(Event.id)).where(Event.is_published == False)
     ) or 0
 
     # Подсчёт пользователей

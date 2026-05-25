@@ -12,14 +12,14 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    'bg-brand-600 text-white hover:bg-brand-700 active:bg-brand-800 shadow-[0_1px_2px_0_rgba(79,70,229,0.4)]',
+    'bg-gradient-to-r from-brand-600 to-brand-500 text-white hover:from-brand-700 hover:to-brand-600 active:from-brand-800 active:to-brand-700 shadow-[0_2px_8px_-2px_rgba(79,70,229,0.5)]',
   secondary:
-    'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300',
+    'bg-white/80 backdrop-blur-sm text-slate-700 border border-slate-200/80 hover:bg-white hover:border-slate-300 hover:shadow-sm',
   ghost: 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
   danger:
-    'bg-rose-600 text-white hover:bg-rose-700 active:bg-rose-800',
+    'bg-gradient-to-r from-rose-600 to-rose-500 text-white hover:from-rose-700 hover:to-rose-600 shadow-[0_2px_8px_-2px_rgba(225,29,72,0.4)]',
   success:
-    'bg-emerald-600 text-white hover:bg-emerald-700 active:bg-emerald-800',
+    'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white hover:from-emerald-700 hover:to-emerald-600 shadow-[0_2px_8px_-2px_rgba(5,150,105,0.4)]',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
@@ -58,7 +58,7 @@ export function Card({
 }) {
   return (
     <div
-      className={`bg-white rounded-2xl border border-slate-200/80 shadow-[var(--shadow-card)] ${className}`}
+      className={`bg-white/80 backdrop-blur-sm rounded-2xl border border-white/60 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-pop)] transition-shadow duration-300 ${className}`}
     >
       {children}
     </div>

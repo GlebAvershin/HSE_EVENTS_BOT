@@ -41,37 +41,36 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center px-4 overflow-hidden bg-slate-50">
+    <div className="min-h-screen relative flex items-center justify-center px-4 overflow-hidden bg-gradient-to-br from-slate-900 via-brand-900 to-purple-900">
+      {/* Animated background orbs */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-500/30 rounded-full blur-[100px] animate-float" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-500/25 rounded-full blur-[80px] animate-float-delayed" />
+        <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-cyan-500/20 rounded-full blur-[60px] animate-float" />
+      </div>
       <div
-        className="absolute inset-0 opacity-60"
+        className="absolute inset-0 opacity-[0.03]"
         style={{
           backgroundImage:
-            'radial-gradient(at 20% 20%, rgba(99,102,241,0.18) 0px, transparent 50%), radial-gradient(at 80% 0%, rgba(56,189,248,0.15) 0px, transparent 50%), radial-gradient(at 70% 90%, rgba(167,139,250,0.18) 0px, transparent 50%)',
-        }}
-      />
-      <div
-        className="absolute inset-0 opacity-[0.025]"
-        style={{
-          backgroundImage:
-            'linear-gradient(#0f172a 1px, transparent 1px), linear-gradient(90deg, #0f172a 1px, transparent 1px)',
+            'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)',
           backgroundSize: '40px 40px',
         }}
       />
 
       <div className="relative w-full max-w-md animate-fade-up">
         <div className="flex flex-col items-center mb-6">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 text-white flex items-center justify-center shadow-[0_8px_24px_-8px_rgba(99,102,241,0.6)] mb-4">
-            <IconShield width={26} height={26} />
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-400 via-brand-500 to-purple-600 text-white flex items-center justify-center shadow-[0_8px_32px_-8px_rgba(99,102,241,0.7)] mb-4 animate-gradient">
+            <IconShield width={30} height={30} />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-2xl font-bold text-white tracking-tight">
             Админ-панель
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-slate-300 mt-1">
             NN Events — модерация и управление
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-[var(--shadow-pop)] p-7">
+        <div className="glass-dark rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] p-7">
           <form onSubmit={handleSubmit} className="space-y-4">
             <Field label="Логин">
               <input
@@ -80,7 +79,7 @@ export default function LoginPage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 autoFocus
-                className="w-full h-11 px-3.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus-ring"
+                className="w-full h-11 px-3.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-slate-500 focus-ring"
                 placeholder="admin"
                 required
               />
@@ -91,7 +90,7 @@ export default function LoginPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full h-11 px-3.5 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus-ring"
+                className="w-full h-11 px-3.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-slate-500 focus-ring"
                 placeholder="••••••••"
                 required
               />
@@ -107,7 +106,7 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <p className="text-center text-xs text-slate-400 mt-6">
+        <p className="text-center text-xs text-slate-500 mt-6">
           © {new Date().getFullYear()} NN Events Bot · Нижний Новгород
         </p>
       </div>

@@ -114,7 +114,7 @@ async def show_calendar_events(
     if events:
         await message.answer(
             text,
-            reply_markup=get_calendar_period_keyboard(events[:5], period)
+            reply_markup=get_calendar_period_keyboard(events, period)
         )
     else:
         await message.answer(text)
@@ -195,6 +195,46 @@ async def show_calendar_event(callback: CallbackQuery, session: AsyncSession):
         text, reply_markup=get_event_detail_keyboard(event_id, user_status)
     )
 
+    await callback.answer()
+
+
+@router.callback_query(F.data.startswith("calendar_page:"))
+async def calendar_page(callback: CallbackQuery, session: AsyncSession):
+    """
+    Пагинация в календаре.
+
+    Args:
+        callback: Callback query
+        session: Сессия БД
+    """
+    parts = callback.data.split(":")
+    period = parts[1]
+    page = int(parts[2])
+
+    calendar_service = CalendarService(session)
+
+    if period == "today":
+        events = await calendar_service.get_events_for_today()
+    elif period == "tomorrow":
+        events = await calendar_service.get_events_for_tomorrow()
+    elif period == "week":
+        events = await calendar_service.get_events_for_week()
+    elif period == "month":
+        events = await calendar_service.get_events_for_month()
+    else:
+        events = []
+
+    if not events:
+        await callback.answer("Нет событий", show_alert=True)
+        return
+
+    period_name = calendar_service.get_period_name(period)
+    text = calendar_service.format_calendar_message(events, period_name)
+
+    await callback.message.edit_text(
+        text,
+        reply_markup=get_calendar_period_keyboard(events, period, page=page)
+    )
     await callback.answer()
 
 

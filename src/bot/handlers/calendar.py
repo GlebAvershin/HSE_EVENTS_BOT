@@ -106,9 +106,9 @@ async def show_calendar_events(
     else:
         events = []
 
-    # Форматируем сообщение
+    # Форматируем сообщение (первая страница)
     period_name = calendar_service.get_period_name(period)
-    text = calendar_service.format_calendar_message(events, period_name)
+    text = calendar_service.format_calendar_message(events, period_name, page=1)
 
     # Если есть события, добавляем кнопки для просмотра
     if events:
@@ -229,7 +229,7 @@ async def calendar_page(callback: CallbackQuery, session: AsyncSession):
         return
 
     period_name = calendar_service.get_period_name(period)
-    text = calendar_service.format_calendar_message(events, period_name)
+    text = calendar_service.format_calendar_message(events, period_name, page=page)
 
     await callback.message.edit_text(
         text,

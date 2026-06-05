@@ -114,14 +114,22 @@ class CalendarService:
         return events
 
     def format_calendar_message(
-        self, events: list, period: str = "неделю"
+        self, events: list, period: str = "неделю",
+        page: int = 1, page_size: int = 8
     ) -> str:
         """
         Форматировать сообщение календаря.
 
+        Текст пагинируется синхронно с inline-клавиатурой (по page_size
+        событий на страницу): за месяц событий может быть 100+, и вывод
+        их всех превышает лимит Telegram в 4096 символов — сообщение
+        тогда вообще не отправляется (кнопка «не работает»).
+
         Args:
-            events: Список событий
+            events: Полный список событий периода
             period: Период (неделю, месяц, сегодня, завтра)
+            page: Текущая страница
+            page_size: Событий на странице
 
         Returns:
             str: Отформатированное сообщение
@@ -129,12 +137,21 @@ class CalendarService:
         if not events:
             return f"😔 На {period} нет запланированных событий."
 
-        text = f"📆 <b>Календарь на {period}</b>\n\n"
-        text += f"Найдено событий: {len(events)}\n\n"
+        total = len(events)
+        total_pages = max(1, (total + page_size - 1) // page_size)
+        page = max(1, min(page, total_pages))
+        start = (page - 1) * page_size
+        page_events = events[start:start + page_size]
 
-        # Группируем события по дням
+        text = f"📆 <b>Календарь на {period}</b>\n\n"
+        text += f"Найдено событий: {total}"
+        if total_pages > 1:
+            text += f"  •  страница {page}/{total_pages}"
+        text += "\n\n"
+
+        # Группируем события по дням (только текущую страницу)
         events_by_date = {}
-        for event in events:
+        for event in page_events:
             date_key = event.date_start.strftime("%Y-%m-%d")
             if date_key not in events_by_date:
                 events_by_date[date_key] = []

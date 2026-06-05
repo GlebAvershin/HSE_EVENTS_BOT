@@ -69,7 +69,14 @@ class TopAcademyParser(BaseParser):
     
     def _parse_card(self, card) -> Optional[EventData]:
         """Парсить одну карточку события."""
-        title_elem = card.find(["h1", "h2", "h3", "h4"])
+        # Заголовок: на сайте это <p class="styles_cardTitle__...">,
+        # тегов h1-h4 в карточке нет. Класс ищем по подстроке (хеш-суффикс
+        # Next.js меняется между сборками).
+        title_elem = (
+            card.find(["h1", "h2", "h3", "h4"])
+            or card.find(class_=re.compile(r"cardtitle", re.I))
+            or card.find("p", class_=re.compile(r"title", re.I))
+        )
         if not title_elem:
             return None
         
@@ -120,13 +127,28 @@ class TopAcademyParser(BaseParser):
         )
     
     def _extract_date(self, text: str) -> Optional[datetime]:
+        # Относительные даты ("сегодня"/"завтра"/"послезавтра 12:00")
+        rel = {"послезавтра": 2, "завтра": 1, "сегодня": 0}
+        for word, delta in rel.items():
+            if re.search(rf'\b{word}\b', text, re.IGNORECASE):
+                from datetime import timedelta
+                base = (datetime.now() + timedelta(days=delta)).replace(
+                    hour=10, minute=0, second=0, microsecond=0
+                )
+                tm = re.search(r'(\d{1,2}):(\d{2})', text)
+                if tm:
+                    h, m = int(tm.group(1)), int(tm.group(2))
+                    if 0 <= h <= 23 and 0 <= m <= 59:
+                        base = base.replace(hour=h, minute=m)
+                return base
+
         match = re.search(
             r'(\d{1,2})\s+(января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)',
             text, re.IGNORECASE
         )
         if not match:
             return None
-        
+
         day = int(match.group(1))
         months = {
             "января": 1, "февраля": 2, "марта": 3, "апреля": 4,

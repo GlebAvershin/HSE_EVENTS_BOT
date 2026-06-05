@@ -5,7 +5,14 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     """Настройки приложения."""
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        # Игнорировать переменные из .env/окружения, не объявленные здесь
+        # (например ADMIN_PANEL_PORT, VITE_API_URL из docker-compose),
+        # иначе Settings() падает на старте всего сервиса.
+        extra="ignore",
+    )
 
     # Telegram Bot
     BOT_TOKEN: str

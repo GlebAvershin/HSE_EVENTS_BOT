@@ -25,12 +25,34 @@ class KassirParser(BrowserParser):
             source_url="https://nn.kassir.ru/bilety-na-koncert"
         )
     
+    # Маркеры анти-бот заглушки (DataDome): отличаем блокировку от
+    # реальной поломки парсера, чтобы оператор видел причину 0 событий.
+    _ANTIBOT_MARKERS = (
+        "требуется действие",
+        "пройдите проверку",
+        "необходимо подтверждение",
+        "datadome",
+        "are you a robot",
+    )
+
     async def _parse_with_browser(self) -> List[EventData]:
         """Парсить события с Kassir.ru."""
         html = await self.fetch_rendered_html(
             self.source_url,
             wait_selector="a[href*='/koncert/']"
         )
+
+        # Детект анти-бот челленджа (DataDome). С «грязного» IP Kassir
+        # отдаёт страницу проверки — кодом она не обходится, нужен
+        # чистый/резидентный IP или сервис решения капчи.
+        lowered = html[:5000].lower()
+        if any(marker in lowered for marker in self._ANTIBOT_MARKERS):
+            print(
+                f"  [BLOCKED] {self.source_name}: анти-бот защита (DataDome). "
+                f"Пропускаем — требуется чистый IP/proxy."
+            )
+            return []
+
         return self._extract_events(html)
     
     def _extract_events(self, html: str) -> List[EventData]:

@@ -110,6 +110,10 @@ class BrowserParser(BaseParser):
         
         try:
             return await self._parse_with_browser()
+        except asyncio.CancelledError:
+            # Не пробрасываем CancelledError — это прерывает весь scheduler
+            print(f"  [SKIP] {self.source_name}: parsing was cancelled (timeout)")
+            return []
         except Exception as e:
             print(f"  [ERROR] {self.source_name}: {type(e).__name__}: {str(e)[:100]}")
             return []

@@ -20,7 +20,7 @@ logger = setup_logger(__name__)
 
 # Глобальный timestamp последнего успешного update от Telegram
 _last_successful_poll = time.time()
-_WATCHDOG_TIMEOUT = 120  # 2 минуты без связи = перезапуск
+_WATCHDOG_TIMEOUT = 300  # 5 минут — увеличено для Playwright-парсеров
 
 
 async def on_startup(bot: Bot):
@@ -47,24 +47,36 @@ async def on_shutdown(bot: Bot):
     logger.info("Бот остановлен")
 
 
-async def watchdog():
+async def watchdog(bot: Bot):
     """
-    Watchdog: проверяет что бот жив и получает updates.
-    Если polling завис на retry более 5 минут — убивает процесс.
-    Docker restart policy перезапустит контейнер.
+    Watchdog: следит за живостью связи с Telegram и перезапускает процесс,
+    если связь потеряна дольше _WATCHDOG_TIMEOUT. Docker поднимет контейнер.
+
+    Важно: heartbeat обновляется по ФАКТИЧЕСКОЙ связи (активная проверка
+    getMe), а не только по входящим апдейтам. Иначе на тихом боте (никто
+    не пишет 5 минут) watchdog ложно срабатывал бы при исправном Telegram.
     """
     global _last_successful_poll
-    
+
     while True:
         await asyncio.sleep(30)
-        
+
         # Обновляем heartbeat файл
         try:
             with open("/tmp/bot_heartbeat", "w") as f:
                 f.write(str(time.time()))
         except Exception:
             pass
-        
+
+        # Активная проверка связи: если getMe проходит — соединение живо,
+        # даже когда нет входящих сообщений. Сбрасываем таймер.
+        try:
+            await asyncio.wait_for(bot.get_me(), timeout=20)
+            _last_successful_poll = time.time()
+        except Exception:
+            # Связи нет — таймер не трогаем, копим время до перезапуска.
+            pass
+
         # Проверяем таймаут
         elapsed = time.time() - _last_successful_poll
         if elapsed > _WATCHDOG_TIMEOUT:
@@ -134,7 +146,7 @@ async def main():
     dp.shutdown.register(on_shutdown)
 
     # Запуск watchdog как фоновую задачу
-    watchdog_task = asyncio.create_task(watchdog())
+    watchdog_task = asyncio.create_task(watchdog(bot))
 
     # Обновляем timestamp при старте
     _last_successful_poll = time.time()

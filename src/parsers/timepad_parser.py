@@ -67,9 +67,16 @@ class TimepadParser(BrowserParser):
         if not href.startswith("http"):
             href = f"https:{href}" if href.startswith("//") else f"https://afisha.timepad.ru{href}"
         href = href.split("?")[0].split("#")[0]
-        
+
         # Пропускаем "categories" и навигационные ссылки
         if "/categories/" in href or "/organizations/" in href:
+            return None
+
+        # Только Нижний Новгород: страница категории подмешивает блок
+        # «рекомендации» с событиями других городов (Москва, СПб, Пермь
+        # и т.д.) — их пропускаем, иначе чужие события попадают в БД
+        # как IT-мероприятия НН (напр. «Лесная скандинавия», Пермь).
+        if "/nizhniy-novgorod/" not in href:
             return None
         
         # Заголовок — текст ссылки или h-элемент внутри

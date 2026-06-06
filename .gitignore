@@ -70,3 +70,12 @@ admin-panel/node_modules/
 admin-panel/dist/
 admin-panel/.env
 admin-panel/.env.local
+
+# Локальные отладочные скрипты и артефакты (не часть проекта)
+/test_*.py
+/parse_*.py
+/trigger_*.py
+/screenshot_*.png
+
+# Локальные заметки AI-ассистента (не коммитим)
+CLAUDE.md
